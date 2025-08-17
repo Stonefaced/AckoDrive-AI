@@ -185,6 +185,8 @@ const AIAssistantSection = () => {
                         <SelectContent>
                           <SelectItem value="petrol">Petrol</SelectItem>
                           <SelectItem value="diesel">Diesel</SelectItem>
+                          <SelectItem value="electric">Electric</SelectItem>
+                          <SelectItem value="hybrid">Hybrid</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -201,6 +203,7 @@ const AIAssistantSection = () => {
                         <SelectContent>
                           <SelectItem value="SUV">SUV</SelectItem>
                           <SelectItem value="sedan">Sedan</SelectItem>
+                          <SelectItem value="hatchback">Hatchback</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
