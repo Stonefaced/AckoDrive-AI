@@ -3,31 +3,67 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { MessageSquare, Send, Bot, User, Star, Zap, Shield } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import { MessageSquare, Send, Bot, User, Star, Zap, Shield, Car, Fuel, DollarSign } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+
+interface CarRecommendation {
+  name: string;
+  price: string;
+  fuelEfficiency: string;
+  features: string[];
+  pros: string[];
+  cons: string[];
+  rating: number;
+  reviews: {
+    author: string;
+    rating: number;
+    comment: string;
+    date: string;
+  }[];
+}
 
 const AIAssistantSection = () => {
-  const [messages, setMessages] = useState([
-    {
-      type: "bot",
-      content: "Hi! I'm your AI car assistant. I can help you find the perfect car based on your needs, budget, and preferences. What are you looking for?"
-    }
-  ]);
-  const [inputMessage, setInputMessage] = useState("");
+  const [showForm, setShowForm] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [recommendation, setRecommendation] = useState<CarRecommendation | null>(null);
+  const [formData, setFormData] = useState({
+    budget: "",
+    fuelType: "",
+    bodyStyle: ""
+  });
 
-  const handleSendMessage = () => {
-    if (!inputMessage.trim()) return;
+  const handleFormSubmit = async () => {
+    if (!formData.budget || !formData.fuelType || !formData.bodyStyle) {
+      return;
+    }
     
-    setMessages(prev => [...prev, { type: "user", content: inputMessage }]);
-    
-    // Simulate AI response (this will be replaced with actual ChatGPT integration)
-    setTimeout(() => {
-      setMessages(prev => [...prev, {
-        type: "bot",
-        content: "I'd be happy to help! Please connect to our backend service to enable full AI capabilities including personalized recommendations, price comparisons, and detailed car analysis."
-      }]);
-    }, 1000);
-    
-    setInputMessage("");
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('car-recommendation', {
+        body: {
+          budget: formData.budget,
+          fuelType: formData.fuelType,
+          bodyStyle: formData.bodyStyle
+        }
+      });
+      
+      if (error) throw error;
+      
+      setRecommendation(data);
+      setShowForm(false);
+    } catch (error) {
+      console.error('Error getting recommendation:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const resetForm = () => {
+    setShowForm(true);
+    setRecommendation(null);
+    setFormData({ budget: "", fuelType: "", bodyStyle: "" });
   };
 
   const aiFeatures = [
@@ -95,81 +131,194 @@ const AIAssistantSection = () => {
             <Card className="border-primary/20 bg-primary/5">
               <CardContent className="p-4">
                 <div className="flex items-center space-x-2 mb-2">
-                  <Badge className="bg-primary text-primary-foreground">
-                    COMING SOON
+                  <Badge className="bg-green-600 text-white">
+                    AI POWERED
                   </Badge>
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  Full ChatGPT integration will be available once backend is connected. 
-                  This will enable advanced car analysis, market insights, and personalized financing options.
+                  Advanced AI engine now active! Get personalized car recommendations based on your specific requirements.
                 </p>
               </CardContent>
             </Card>
           </div>
 
-          {/* Chat Interface */}
+          {/* Main Interface */}
           <div className="lg:col-span-2">
-            <Card className="h-96 flex flex-col">
-              <CardHeader className="pb-3">
-                <CardTitle className="flex items-center space-x-2">
-                  <MessageSquare className="w-5 h-5 text-primary" />
-                  <span>Chat with AI Assistant</span>
-                </CardTitle>
-              </CardHeader>
-              
-              <CardContent className="flex-1 flex flex-col p-0">
-                {/* Messages Area */}
-                <div className="flex-1 overflow-y-auto p-4 space-y-4">
-                  {messages.map((message, index) => (
-                    <div
-                      key={index}
-                      className={`flex ${message.type === "user" ? "justify-end" : "justify-start"}`}
-                    >
-                      <div className="flex items-start space-x-2 max-w-[80%]">
-                        {message.type === "bot" && (
-                          <div className="bg-primary rounded-full p-1">
-                            <Bot className="w-4 h-4 text-primary-foreground" />
+            {showForm ? (
+              <Card className="min-h-96">
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2">
+                    <Car className="w-5 h-5 text-primary" />
+                    <span>Find Your Perfect Car</span>
+                  </CardTitle>
+                </CardHeader>
+                
+                <CardContent className="space-y-6">
+                  <div className="grid gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="budget" className="flex items-center space-x-2">
+                        <DollarSign className="w-4 h-4" />
+                        <span>Budget Range</span>
+                      </Label>
+                      <Select value={formData.budget} onValueChange={(value) => setFormData({...formData, budget: value})}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select your budget range" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="5-10 lakh">₹5 - 10 Lakh</SelectItem>
+                          <SelectItem value="10-15 lakh">₹10 - 15 Lakh</SelectItem>
+                          <SelectItem value="15-20 lakh">₹15 - 20 Lakh</SelectItem>
+                          <SelectItem value="20+ lakh">₹20+ Lakh</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="fuelType" className="flex items-center space-x-2">
+                        <Fuel className="w-4 h-4" />
+                        <span>Fuel Type</span>
+                      </Label>
+                      <Select value={formData.fuelType} onValueChange={(value) => setFormData({...formData, fuelType: value})}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select fuel type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="petrol">Petrol</SelectItem>
+                          <SelectItem value="diesel">Diesel</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="bodyStyle" className="flex items-center space-x-2">
+                        <Car className="w-4 h-4" />
+                        <span>Body Style</span>
+                      </Label>
+                      <Select value={formData.bodyStyle} onValueChange={(value) => setFormData({...formData, bodyStyle: value})}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select body style" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="SUV">SUV</SelectItem>
+                          <SelectItem value="sedan">Sedan</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  <Button 
+                    onClick={handleFormSubmit} 
+                    disabled={!formData.budget || !formData.fuelType || !formData.bodyStyle || loading}
+                    className="w-full"
+                  >
+                    {loading ? "Getting AI Recommendation..." : "Get AI Recommendation"}
+                  </Button>
+                </CardContent>
+              </Card>
+            ) : recommendation && (
+              <div className="space-y-6">
+                {/* Recommendation Card */}
+                <Card>
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="flex items-center space-x-2">
+                        <Bot className="w-5 h-5 text-primary" />
+                        <span>AI Recommendation</span>
+                      </CardTitle>
+                      <Button variant="outline" onClick={resetForm}>
+                        New Search
+                      </Button>
+                    </div>
+                  </CardHeader>
+                  
+                  <CardContent className="space-y-4">
+                    <div className="border-l-4 border-primary pl-4">
+                      <h3 className="text-xl font-bold text-foreground">{recommendation.name}</h3>
+                      <p className="text-lg text-primary font-semibold">{recommendation.price}</p>
+                      <p className="text-muted-foreground">Fuel Efficiency: {recommendation.fuelEfficiency}</p>
+                    </div>
+
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <div>
+                        <h4 className="font-semibold text-foreground mb-2">Key Features</h4>
+                        <ul className="space-y-1">
+                          {recommendation.features.map((feature, index) => (
+                            <li key={index} className="text-sm text-muted-foreground flex items-center space-x-2">
+                              <Star className="w-3 h-3 text-primary" />
+                              <span>{feature}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                      
+                      <div>
+                        <div className="flex items-center space-x-2 mb-2">
+                          <span className="font-semibold">Rating:</span>
+                          <div className="flex space-x-1">
+                            {[...Array(5)].map((_, i) => (
+                              <Star 
+                                key={i} 
+                                className={`w-4 h-4 ${i < recommendation.rating ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} 
+                              />
+                            ))}
                           </div>
-                        )}
-                        <div
-                          className={`rounded-lg p-3 ${
-                            message.type === "user"
-                              ? "bg-primary text-primary-foreground"
-                              : "bg-muted text-foreground"
-                          }`}
-                        >
-                          <p className="text-sm">{message.content}</p>
+                          <span className="text-sm text-muted-foreground">({recommendation.rating}/5)</span>
                         </div>
-                        {message.type === "user" && (
-                          <div className="bg-muted rounded-full p-1">
-                            <User className="w-4 h-4 text-muted-foreground" />
+                        
+                        <div className="space-y-2">
+                          <div>
+                            <h5 className="text-sm font-semibold text-green-600">Pros:</h5>
+                            <ul className="text-xs text-muted-foreground">
+                              {recommendation.pros.slice(0, 2).map((pro, index) => (
+                                <li key={index}>• {pro}</li>
+                              ))}
+                            </ul>
                           </div>
-                        )}
+                          <div>
+                            <h5 className="text-sm font-semibold text-red-600">Cons:</h5>
+                            <ul className="text-xs text-muted-foreground">
+                              {recommendation.cons.slice(0, 2).map((con, index) => (
+                                <li key={index}>• {con}</li>
+                              ))}
+                            </ul>
+                          </div>
+                        </div>
                       </div>
                     </div>
-                  ))}
-                </div>
+                  </CardContent>
+                </Card>
 
-                {/* Input Area */}
-                <div className="border-t border-border p-4">
-                  <div className="flex space-x-2">
-                    <Input
-                      placeholder="Ask me anything about cars..."
-                      value={inputMessage}
-                      onChange={(e) => setInputMessage(e.target.value)}
-                      onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-                      className="flex-1"
-                    />
-                    <Button 
-                      onClick={handleSendMessage}
-                      className="bg-primary hover:bg-primary-dark"
-                    >
-                      <Send className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                {/* Customer Reviews */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Customer Reviews</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      {recommendation.reviews.map((review, index) => (
+                        <div key={index} className="border-b border-border last:border-b-0 pb-4 last:pb-0">
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center space-x-2">
+                              <span className="font-semibold text-sm">{review.author}</span>
+                              <div className="flex space-x-1">
+                                {[...Array(5)].map((_, i) => (
+                                  <Star 
+                                    key={i} 
+                                    className={`w-3 h-3 ${i < review.rating ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} 
+                                  />
+                                ))}
+                              </div>
+                            </div>
+                            <span className="text-xs text-muted-foreground">{review.date}</span>
+                          </div>
+                          <p className="text-sm text-muted-foreground">{review.comment}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
           </div>
         </div>
       </div>
