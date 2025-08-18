@@ -9,18 +9,23 @@ import { MessageSquare, Send, Bot, User, Star, Zap, Shield, Car, Fuel, DollarSig
 import { supabase } from "@/integrations/supabase/client";
 
 interface CarRecommendation {
-  name: string;
-  price: string;
-  fuelEfficiency: string;
-  features: string[];
-  pros: string[];
-  cons: string[];
-  rating: number;
-  reviews: {
-    author: string;
+  cars: {
+    name: string;
+    price: string;
+    bodyStyle: string;
+    transmission: string;
+    engine: string;
+    fuelType: string;
+    fuelEfficiency: string;
+    features: string[];
+    pros: string[];
+    cons: string[];
     rating: number;
-    comment: string;
-    date: string;
+    reviews: {
+      author: string;
+      rating: number;
+      comment: string;
+    }[];
   }[];
 }
 
@@ -85,7 +90,7 @@ const AIAssistantSection = () => {
   ];
 
   return (
-    <section className="py-16 bg-muted/30">
+    <section id="ai-assistant" className="py-16 bg-muted/30">
       <div className="container mx-auto px-4">
         {/* Section Header */}
         <div className="text-center mb-12">
@@ -204,6 +209,8 @@ const AIAssistantSection = () => {
                           <SelectItem value="SUV">SUV</SelectItem>
                           <SelectItem value="sedan">Sedan</SelectItem>
                           <SelectItem value="hatchback">Hatchback</SelectItem>
+                          <SelectItem value="MPV">MPV</SelectItem>
+                          <SelectItem value="pickup">Pickup</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -220,106 +227,109 @@ const AIAssistantSection = () => {
               </Card>
             ) : recommendation && (
               <div className="space-y-6">
-                {/* Recommendation Card */}
-                <Card>
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <CardTitle className="flex items-center space-x-2">
-                        <Bot className="w-5 h-5 text-primary" />
-                        <span>AI Recommendation</span>
-                      </CardTitle>
-                      <Button variant="outline" onClick={resetForm}>
-                        New Search
-                      </Button>
-                    </div>
-                  </CardHeader>
-                  
-                  <CardContent className="space-y-4">
-                    <div className="border-l-4 border-primary pl-4">
-                      <h3 className="text-xl font-bold text-foreground">{recommendation.name}</h3>
-                      <p className="text-lg text-primary font-semibold">{recommendation.price}</p>
-                      <p className="text-muted-foreground">Fuel Efficiency: {recommendation.fuelEfficiency}</p>
-                    </div>
-
-                    <div className="grid md:grid-cols-2 gap-4">
-                      <div>
-                        <h4 className="font-semibold text-foreground mb-2">Key Features</h4>
-                        <ul className="space-y-1">
-                          {recommendation.features.map((feature, index) => (
-                            <li key={index} className="text-sm text-muted-foreground flex items-center space-x-2">
-                              <Star className="w-3 h-3 text-primary" />
-                              <span>{feature}</span>
-                            </li>
-                          ))}
-                        </ul>
+                {/* Multiple Recommendations */}
+                {recommendation.cars.map((car, carIndex) => (
+                  <Card key={carIndex}>
+                    <CardHeader>
+                      <div className="flex items-center justify-between">
+                        <CardTitle className="flex items-center space-x-2">
+                          <Bot className="w-5 h-5 text-primary" />
+                          <span>AI Recommendation {carIndex + 1}</span>
+                        </CardTitle>
+                        {carIndex === 0 && (
+                          <Button variant="outline" onClick={resetForm}>
+                            New Search
+                          </Button>
+                        )}
                       </div>
-                      
-                      <div>
-                        <div className="flex items-center space-x-2 mb-2">
-                          <span className="font-semibold">Rating:</span>
-                          <div className="flex space-x-1">
-                            {[...Array(5)].map((_, i) => (
-                              <Star 
-                                key={i} 
-                                className={`w-4 h-4 ${i < recommendation.rating ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} 
-                              />
+                    </CardHeader>
+                    
+                    <CardContent className="space-y-4">
+                      <div className="border-l-4 border-primary pl-4">
+                        <h3 className="text-xl font-bold text-foreground">{car.name}</h3>
+                        <div className="grid grid-cols-2 gap-2 mt-2">
+                          <p className="text-lg text-primary font-semibold">{car.price}</p>
+                          <p className="text-muted-foreground">Body: {car.bodyStyle}</p>
+                          <p className="text-muted-foreground">Transmission: {car.transmission}</p>
+                          <p className="text-muted-foreground">Engine: {car.engine}</p>
+                          <p className="text-muted-foreground">Fuel: {car.fuelType}</p>
+                          <p className="text-muted-foreground">Efficiency: {car.fuelEfficiency}</p>
+                        </div>
+                      </div>
+
+                      <div className="grid md:grid-cols-2 gap-4">
+                        <div>
+                          <h4 className="font-semibold text-foreground mb-2">Key Features</h4>
+                          <ul className="space-y-1">
+                            {car.features.map((feature, index) => (
+                              <li key={index} className="text-sm text-muted-foreground flex items-center space-x-2">
+                                <Star className="w-3 h-3 text-primary" />
+                                <span>{feature}</span>
+                              </li>
                             ))}
-                          </div>
-                          <span className="text-sm text-muted-foreground">({recommendation.rating}/5)</span>
+                          </ul>
                         </div>
                         
-                        <div className="space-y-2">
-                          <div>
-                            <h5 className="text-sm font-semibold text-green-600">Pros:</h5>
-                            <ul className="text-xs text-muted-foreground">
-                              {recommendation.pros.slice(0, 2).map((pro, index) => (
-                                <li key={index}>• {pro}</li>
+                        <div>
+                          <div className="flex items-center space-x-2 mb-2">
+                            <span className="font-semibold">Rating:</span>
+                            <div className="flex space-x-1">
+                              {[...Array(5)].map((_, i) => (
+                                <Star 
+                                  key={i} 
+                                  className={`w-4 h-4 ${i < car.rating ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} 
+                                />
                               ))}
-                            </ul>
+                            </div>
+                            <span className="text-sm text-muted-foreground">({car.rating}/5)</span>
                           </div>
-                          <div>
-                            <h5 className="text-sm font-semibold text-red-600">Cons:</h5>
-                            <ul className="text-xs text-muted-foreground">
-                              {recommendation.cons.slice(0, 2).map((con, index) => (
-                                <li key={index}>• {con}</li>
-                              ))}
-                            </ul>
+                          
+                          <div className="space-y-2">
+                            <div>
+                              <h5 className="text-sm font-semibold text-green-600">Pros:</h5>
+                              <ul className="text-xs text-muted-foreground">
+                                {car.pros.slice(0, 2).map((pro, index) => (
+                                  <li key={index}>• {pro}</li>
+                                ))}
+                              </ul>
+                            </div>
+                            <div>
+                              <h5 className="text-sm font-semibold text-red-600">Cons:</h5>
+                              <ul className="text-xs text-muted-foreground">
+                                {car.cons.slice(0, 2).map((con, index) => (
+                                  <li key={index}>• {con}</li>
+                                ))}
+                              </ul>
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  </CardContent>
-                </Card>
 
-                {/* Customer Reviews */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Customer Reviews</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      {recommendation.reviews.map((review, index) => (
-                        <div key={index} className="border-b border-border last:border-b-0 pb-4 last:pb-0">
-                          <div className="flex items-center justify-between mb-2">
-                            <div className="flex items-center space-x-2">
-                              <span className="font-semibold text-sm">{review.author}</span>
-                              <div className="flex space-x-1">
-                                {[...Array(5)].map((_, i) => (
-                                  <Star 
-                                    key={i} 
-                                    className={`w-3 h-3 ${i < review.rating ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} 
-                                  />
-                                ))}
+                      {/* Customer Reviews */}
+                      <div className="mt-6">
+                        <h4 className="font-semibold text-foreground mb-3">Customer Reviews</h4>
+                        <div className="space-y-3">
+                          {car.reviews.map((review, index) => (
+                            <div key={index} className="border-l-2 border-border pl-4">
+                              <div className="flex items-center space-x-2 mb-1">
+                                <div className="flex space-x-1">
+                                  {[...Array(5)].map((_, i) => (
+                                    <Star 
+                                      key={i} 
+                                      className={`w-3 h-3 ${i < review.rating ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} 
+                                    />
+                                  ))}
+                                </div>
+                                <span className="text-xs text-muted-foreground">– {review.author}</span>
                               </div>
+                              <p className="text-sm text-muted-foreground italic">"{review.comment}"</p>
                             </div>
-                            <span className="text-xs text-muted-foreground">{review.date}</span>
-                          </div>
-                          <p className="text-sm text-muted-foreground">{review.comment}</p>
+                          ))}
                         </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
               </div>
             )}
           </div>

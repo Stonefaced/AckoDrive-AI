@@ -26,7 +26,14 @@ const Header = () => {
             <a href="#" className="text-foreground hover:text-primary transition-colors font-medium">
               BLOG
             </a>
-            <a href="#" className="text-foreground hover:text-primary transition-colors font-medium">
+            <a 
+              href="#ai-assistant" 
+              className="text-foreground hover:text-primary transition-colors font-medium"
+              onClick={(e) => {
+                e.preventDefault();
+                document.getElementById('ai-assistant')?.scrollIntoView({ behavior: 'smooth' });
+              }}
+            >
               AI ASSISTANT
             </a>
           </nav>
