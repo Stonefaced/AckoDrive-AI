@@ -64,4 +64,6 @@ https://youtu.be/D96MrPc71a4
 <img width="1863" height="982" alt="Screenshot 2025-08-18 161629" src="https://github.com/user-attachments/assets/44c9e20e-0b35-48c5-a315-0721440f1955" />
 <img width="1868" height="982" alt="Screenshot 2025-08-18 161609" src="https://github.com/user-attachments/assets/32ce2e6a-f059-4a7b-bbb5-0fa4faa60601" />
 
+BUSINESS SUMMARY
+[CarMatchAI_Business_Summary.pdf](https://github.com/user-attachments/files/21834654/CarMatchAI_Business_Summary.pdf)
 
