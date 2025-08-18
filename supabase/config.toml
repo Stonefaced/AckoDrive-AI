@@ -2,6 +2,3 @@ project_id = "wlctfqhslfnxntswpdar"
 
 [functions.car-recommendation]
 verify_jwt = false
-
-[functions.car-search]
-verify_jwt = false

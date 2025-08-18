@@ -6,14 +6,15 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-interface CarData {
+interface CarRecommendationRequest {
+  budget: string;
+  fuelType: 'petrol' | 'diesel' | 'electric' | 'hybrid';
+  bodyStyle: 'SUV' | 'sedan' | 'hatchback';
+}
+
+interface CarRecommendation {
   name: string;
-  bodyStyle: string;
-  fuelType: string;
-  transmission: string;
-  engine: string;
   price: string;
-  priceValue: number;
   fuelEfficiency: string;
   features: string[];
   pros: string[];
@@ -23,243 +24,8 @@ interface CarData {
     author: string;
     rating: number;
     comment: string;
+    date: string;
   }[];
-}
-
-const cars: CarData[] = [
-  {
-    name: "Maruti Suzuki Baleno",
-    bodyStyle: "Hatchback", 
-    fuelType: "Petrol",
-    transmission: "Manual/Auto",
-    engine: "1.2L K12C",
-    price: "₹6.61L",
-    priceValue: 6.61,
-    fuelEfficiency: "22-23 kmpl",
-    features: ["Infotainment System", "Automatic Climate Control", "Keyless Entry", "Push Button Start"],
-    pros: ["Great fuel efficiency", "Spacious interior", "Smooth engine"],
-    cons: ["Average build quality", "Road noise"],
-    rating: 4,
-    reviews: [
-      { author: "Rajesh Kumar", rating: 4, comment: "Excellent mileage and comfortable for city driving." },
-      { author: "Priya Singh", rating: 5, comment: "Love the spacious interior and smooth ride quality." },
-      { author: "Amit Sharma", rating: 3, comment: "Good car but could have better build quality." },
-      { author: "Sneha Patel", rating: 4, comment: "Perfect family car with great features at this price." },
-      { author: "Vikram Reddy", rating: 4, comment: "Fuel efficient and reliable for daily commute." }
-    ]
-  },
-  {
-    name: "Hyundai Creta",
-    bodyStyle: "SUV",
-    fuelType: "Petrol",
-    transmission: "Manual/Auto", 
-    engine: "1.5L NA",
-    price: "₹11.00L",
-    priceValue: 11.00,
-    fuelEfficiency: "16-17 kmpl",
-    features: ["Panoramic Sunroof", "Wireless Charging", "360-degree Camera", "Ventilated Seats"],
-    pros: ["Premium features", "Strong build quality", "Good ground clearance"],
-    cons: ["Higher maintenance cost", "Average fuel efficiency"],
-    rating: 4,
-    reviews: [
-      { author: "Arjun Mehta", rating: 5, comment: "Premium feel with excellent features. Worth every penny." },
-      { author: "Kavya Nair", rating: 4, comment: "Great SUV for families. Love the sunroof and space." },
-      { author: "Rohit Gupta", rating: 4, comment: "Solid build quality and comfortable for long drives." },
-      { author: "Meera Joshi", rating: 3, comment: "Good car but fuel efficiency could be better." },
-      { author: "Sanjay Kumar", rating: 5, comment: "Best in segment with premium features." }
-    ]
-  },
-  {
-    name: "Honda Elevate",
-    bodyStyle: "SUV",
-    fuelType: "Petrol",
-    transmission: "Manual/Auto",
-    engine: "1.5L i-VTEC",
-    price: "₹13.85L",
-    priceValue: 13.85,
-    fuelEfficiency: "15-16 kmpl",
-    features: ["Honda SENSING", "Panoramic Sunroof", "Wireless Charging", "Premium Audio"],
-    pros: ["Strong engine", "Advanced safety features", "Premium interior"],
-    cons: ["Higher price", "Average fuel efficiency"],
-    rating: 4,
-    reviews: [
-      { author: "Abhishek Rao", rating: 5, comment: "Excellent build quality and Honda's reliability at its best." },
-      { author: "Swati Bose", rating: 4, comment: "Premium features and comfortable ride quality." },
-      { author: "Nitin Jain", rating: 4, comment: "Great SUV with advanced safety features." },
-      { author: "Rekha Sinha", rating: 3, comment: "Good car but fuel efficiency could be better." },
-      { author: "Ashok Kumar", rating: 5, comment: "Honda's best SUV offering with premium feel." }
-    ]
-  },
-  {
-    name: "Renault Kwid",
-    bodyStyle: "Hatchback",
-    fuelType: "Petrol",
-    transmission: "Manual/Auto",
-    engine: "1.0L",
-    price: "₹4.70L",
-    priceValue: 4.70,
-    fuelEfficiency: "22-23 kmpl",
-    features: ["Touchscreen", "Digital Cluster", "Rear Parking Sensors", "Power Steering"],
-    pros: ["Affordable", "Good fuel efficiency", "SUV-like styling"],
-    cons: ["Build quality", "Safety rating"],
-    rating: 3,
-    reviews: [
-      { author: "Budget Buyer", rating: 3, comment: "Great entry-level car with SUV looks." },
-      { author: "First Time Owner", rating: 4, comment: "Perfect first car with good mileage." },
-      { author: "City Commuter", rating: 3, comment: "Affordable and efficient for city use." },
-      { author: "Student Driver", rating: 3, comment: "Budget-friendly but build could be better." },
-      { author: "Economy Seeker", rating: 4, comment: "Best value in entry-level segment." }
-    ]
-  },
-  {
-    name: "Tata Tiago EV",
-    bodyStyle: "Hatchback",
-    fuelType: "Electric",
-    transmission: "Automatic",
-    engine: "24kWh Battery",
-    price: "₹8.50L",
-    priceValue: 8.50,
-    fuelEfficiency: "315 km range",
-    features: ["Fast Charging", "Connected Car", "Tata's ZConnect", "Eco Mode"],
-    pros: ["Zero emissions", "Good range", "Tata's reliability"],
-    cons: ["Charging time", "Initial cost"],
-    rating: 4,
-    reviews: [
-      { author: "EV Pioneer", rating: 5, comment: "Excellent electric hatchback with good range." },
-      { author: "Green Advocate", rating: 4, comment: "Perfect transition to electric mobility." },
-      { author: "Tech Savvy", rating: 4, comment: "Good features and connected car tech." },
-      { author: "Economy Driver", rating: 4, comment: "Low running costs and eco-friendly." },
-      { author: "Urban User", rating: 4, comment: "Great for city driving with zero emissions." }
-    ]
-  },
-  {
-    name: "Honda City Hybrid",
-    bodyStyle: "Sedan",
-    fuelType: "Petrol Hybrid",
-    transmission: "Automatic",
-    engine: "1.5L e:HEV",
-    price: "₹19.00L",
-    priceValue: 19.00,
-    fuelEfficiency: "26-27 kmpl",
-    features: ["Honda SENSING", "Hybrid Technology", "Premium Audio", "Wireless Charging"],
-    pros: ["Excellent fuel efficiency", "Honda reliability", "Hybrid tech"],
-    cons: ["Higher price", "CVT feel"],
-    rating: 4,
-    reviews: [
-      { author: "Hybrid Enthusiast", rating: 5, comment: "Amazing fuel efficiency with Honda's reliability." },
-      { author: "Tech Lover", rating: 4, comment: "Great hybrid technology and features." },
-      { author: "Eco Driver", rating: 5, comment: "Perfect blend of performance and efficiency." },
-      { author: "Premium Seeker", rating: 4, comment: "Premium sedan with excellent mileage." },
-      { author: "Family Driver", rating: 4, comment: "Reliable and efficient for family use." }
-    ]
-  },
-  {
-    name: "Tesla Model 3",
-    bodyStyle: "Sedan",
-    fuelType: "Electric",
-    transmission: "Automatic",
-    engine: "60kWh Battery",
-    price: "₹60.00L",
-    priceValue: 60.00,
-    fuelEfficiency: "500+ km range",
-    features: ["Autopilot", "Supercharging", "OTA Updates", "Minimalist Interior"],
-    pros: ["Advanced technology", "Long range", "Tesla brand"],
-    cons: ["High price", "Service network"],
-    rating: 5,
-    reviews: [
-      { author: "EV Pioneer", rating: 5, comment: "Future of mobility with incredible technology." },
-      { author: "Tech Lover", rating: 5, comment: "Amazing autopilot and OTA updates." },
-      { author: "Eco Warrior", rating: 5, comment: "Zero emissions with incredible range." },
-      { author: "Innovation Fan", rating: 5, comment: "Most innovative car with cutting-edge tech." },
-      { author: "Early Adopter", rating: 4, comment: "Great car but service network needs improvement." }
-    ]
-  }
-];
-
-const budgetRanges = {
-  "5-10 lakh": { min: 4.5, max: 11.0 },
-  "10-15 lakh": { min: 9.0, max: 16.5 },
-  "15-20 lakh": { min: 13.5, max: 22.0 },
-  "20+ lakh": { min: 18.0, max: 150.0 }
-};
-
-function filterCarsByBudget(budget: string): CarData[] {
-  const range = budgetRanges[budget as keyof typeof budgetRanges];
-  if (!range) return cars;
-  
-  return cars.filter(car => car.priceValue >= range.min && car.priceValue <= range.max);
-}
-
-function getRecommendations(budget: string, fuelType: string, bodyStyle: string) {
-  console.log('Received request:', { budget, fuelType, bodyStyle });
-  
-  let filteredCars = filterCarsByBudget(budget);
-  
-  // Filter by fuel type
-  if (fuelType && fuelType !== 'any') {
-    filteredCars = filteredCars.filter(car => 
-      car.fuelType.toLowerCase().includes(fuelType.toLowerCase()) ||
-      (fuelType === 'petrol' && car.fuelType.includes('Petrol')) ||
-      (fuelType === 'diesel' && car.fuelType.includes('Diesel')) ||
-      (fuelType === 'electric' && car.fuelType.includes('Electric')) ||
-      (fuelType === 'hybrid' && car.fuelType.includes('Hybrid'))
-    );
-  }
-  
-  // Filter by body style
-  if (bodyStyle && bodyStyle !== 'any') {
-    filteredCars = filteredCars.filter(car => 
-      car.bodyStyle.toLowerCase() === bodyStyle.toLowerCase()
-    );
-  }
-  
-  // Sort by rating and price value
-  filteredCars.sort((a, b) => {
-    if (b.rating !== a.rating) return b.rating - a.rating;
-    return a.priceValue - b.priceValue;
-  });
-  
-  // Get 2-3 recommendations
-  const recommendations = filteredCars.slice(0, Math.min(3, Math.max(2, filteredCars.length)));
-  
-  if (recommendations.length === 0) {
-    // Fallback recommendations
-    const fallbackCars = cars.slice(0, 2);
-    
-    return {
-      cars: fallbackCars.map(car => ({
-        name: car.name,
-        price: car.price,
-        bodyStyle: car.bodyStyle,
-        transmission: car.transmission,
-        engine: car.engine,
-        fuelType: car.fuelType,
-        fuelEfficiency: car.fuelEfficiency,
-        features: car.features,
-        pros: car.pros,
-        cons: car.cons,
-        rating: car.rating,
-        reviews: car.reviews
-      }))
-    };
-  }
-  
-  return {
-    cars: recommendations.map(car => ({
-      name: car.name,
-      price: car.price,
-      bodyStyle: car.bodyStyle,
-      transmission: car.transmission,
-      engine: car.engine,
-      fuelType: car.fuelType,
-      fuelEfficiency: car.fuelEfficiency,
-      features: car.features,
-      pros: car.pros,
-      cons: car.cons,
-      rating: car.rating,
-      reviews: car.reviews
-    }))
-  };
 }
 
 serve(async (req) => {
@@ -269,9 +35,13 @@ serve(async (req) => {
   }
 
   try {
-    const { budget, fuelType, bodyStyle } = await req.json();
+    const { budget, fuelType, bodyStyle }: CarRecommendationRequest = await req.json();
     
-    const recommendation = getRecommendations(budget, fuelType, bodyStyle);
+    console.log('Received request:', { budget, fuelType, bodyStyle });
+
+    // For now, we'll use a mock recommendation system since gpt4free requires more setup
+    // In production, you would integrate with gpt4free here
+    const recommendation = generateMockRecommendation(budget, fuelType, bodyStyle);
     
     return new Response(JSON.stringify(recommendation), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
