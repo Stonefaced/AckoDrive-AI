@@ -52,6 +52,7 @@ This project is built with:
 
 #DEMO VIDEO 
 https://youtu.be/D96MrPc71a4
+
 #DEMO SCREENSHOTS
 <img width="1872" height="981" alt="Screenshot 2025-08-18 161534" src="https://github.com/user-attachments/assets/9bfd5e13-3f8a-4320-a7ee-4141a5cc3ce1" />
 <img width="1863" height="987" alt="Screenshot 2025-08-18 154713" src="https://github.com/user-attachments/assets/36667d5a-c4a8-463e-8670-153f8f3e2cf7" />
