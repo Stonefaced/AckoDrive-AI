@@ -56,8 +56,12 @@ const AIAssistantSection = () => {
       
       if (error) throw error;
       
-      setRecommendation(data);
-      setShowForm(false);
+      if (data && data.cars) {
+        setRecommendation(data);
+        setShowForm(false);
+      } else {
+        console.error('Invalid recommendation data:', data);
+      }
     } catch (error) {
       console.error('Error getting recommendation:', error);
     } finally {
@@ -225,7 +229,7 @@ const AIAssistantSection = () => {
                   </Button>
                 </CardContent>
               </Card>
-            ) : recommendation && (
+            ) : recommendation && recommendation.cars && (
               <div className="space-y-6">
                 {/* Multiple Recommendations */}
                 {recommendation.cars.map((car, carIndex) => (
